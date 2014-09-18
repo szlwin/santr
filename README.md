@@ -25,7 +25,8 @@ You can learn how to use santr by the example.<br>
     
     expr : expr ('*'|'/') expr
      | expr ('+'|'-') expr
-     | atom
+     | ID
+     | INT
      | '(' expr ')'
      | fun;
      
@@ -34,10 +35,9 @@ You can learn how to use santr by the example.<br>
      array: param (',' param)*;
      
      param: ID  ('[' INT ']')?
+       | INT
        | fun
        | expr;
-       
-       atom : ID | INT;
        
        @ID : ^[A-Za-z]+$;
        
