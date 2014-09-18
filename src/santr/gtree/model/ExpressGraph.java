@@ -55,7 +55,7 @@ public class ExpressGraph {
 		eGraph = new FastMap[eGraphList.size()];
 		eGraphList.toArray(eGraph);
 		//eGraphList.clear();
-		println();
+		//println();
 	}
 	
 	public List<LineInfo> get(int id,int token){
