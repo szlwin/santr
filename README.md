@@ -7,3 +7,8 @@ Warning
 As a result of the study,it's may be:<br>
 (1) It's can't always check the grammar-error,if the express is uncorrect.<br>
 (2) It's can't always parse the express corrected,if the grammar is very complex.
+
+License
+=======
+
+Licensed under the BSD lincese.
