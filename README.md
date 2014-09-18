@@ -12,3 +12,36 @@ License
 =======
 
 Licensed under the BSD lincese.
+
+Example
+=======
+You can learn how to use santr by the example.<br>
+
+(1) First,you should create the grammar tree file,which is named Expr.ls,the content is:<br>
+
+    grammar Expr;
+    
+    prog : expr;
+    
+    expr : expr ('*'|'/') expr
+     | expr ('+'|'-') expr
+     | atom
+     | '(' expr ')'
+     | fun;
+     
+     fun: ID '(' ( array )?  ')' ;
+     
+     array: param (',' param)*;
+     
+     param: ID  ('[' INT ']')?
+       | fun
+       | expr;
+       
+       atom : ID | INT;
+       
+       @ID : ^[A-Za-z]+$;
+       
+       @INT : ^[0-9]*$;
+    
+
+
