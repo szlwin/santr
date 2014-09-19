@@ -202,7 +202,7 @@ class ToolUtil {
 		//treeInfo.getLast().addRTree(nodeTree);
 		this.createNode(treeInfo.getLast(), tokenString);
 		treeInfo.getLast().setLeaf(lbs.getRel());
-		rTree.setLeaf(lbs.getRel().getParent());
+		rTree.setLeaf(lbs.getParent().getRel());
 		treeInfo.getLast().setLbs(lbs);
 		
 		

@@ -304,15 +304,16 @@ public class TreeWorker {
 	{
 
 		RTree rTree = toolUtil.createPreNodeTree(currentTree);
-		if(rTree != null){
+
+		if(rTree !=null){
 			currentTree.addRTree(rTree);
 			this.moveUp();
-		}
-		if(currentTree.getrTreeList().isEmpty()){
-			throw new ParserInvaildException(toolUtil.getTokenString());
+		}else{
+			if(currentTree.getrTreeList().isEmpty()){
+				throw new ParserInvaildException(toolUtil.getTokenString());
+			}
 		}
 		
-
 		while(currentTree.getLeaf().getToken() ==null 
 				|| !currentTree.getLeaf().getToken()
 				.containsKey(toolUtil.getTokenString().getId())
