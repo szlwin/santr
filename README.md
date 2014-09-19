@@ -59,7 +59,7 @@ Then write a Test.java to build parser tree:
     	 * @throws Exception 
     	 */
     	public static void main(String[] args) throws Exception {
-    		LexerUtil.load("expr", "demo/v2/Expr.ls");
+    		LexerUtil.load("expr", "Expr.ls");
     		
     		ExpressParser lexerExecuter = new ExpressParser();
     		lexerExecuter.parser("expr", "6+max(2+3,min(one,two),three)");
@@ -71,3 +71,6 @@ Then write a Test.java to build parser tree:
     	}
     
     }
+
+When you executing it, you can see the parser tree.
+    
