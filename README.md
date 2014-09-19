@@ -62,11 +62,11 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     	    //Load the grammar file,only need load once.
     		LexerUtil.load("expr", "Expr.ls");
     		
-    		ExpressParser lexerExecuter = new ExpressParser();
-    		lexerExecuter.parser("expr", "6+max(2+3,min(one,two),three)");
+    		ExpressParser parser = new ExpressParser();
+    		parser.parser("expr", "6+max(2+3,min(one,two),three)");
     		
     
-    	    TreeViewer viewer = new TreeViewer(lexerExecuter.getTree());
+    	    TreeViewer viewer = new TreeViewer(parser.getTree());
     	    viewer.open();
     
     	}
