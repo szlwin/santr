@@ -44,7 +44,7 @@ You can learn how to use santr by the example.<br>
     @INT : ^[0-9]*$;
     
     
-Then write a Test.java to build parser tree:
+Then write a Test.java to build parser tree by the Expr.ls file.When you executing it, you can see the result.
     
     import santr.common.context.LexerUtil;
     import santr.v3.parser.ExpressParser;
@@ -59,6 +59,7 @@ Then write a Test.java to build parser tree:
     	 * @throws Exception 
     	 */
     	public static void main(String[] args) throws Exception {
+    	    //Load the grammar file,only need load once.
     		LexerUtil.load("expr", "Expr.ls");
     		
     		ExpressParser lexerExecuter = new ExpressParser();
@@ -71,6 +72,4 @@ Then write a Test.java to build parser tree:
     	}
     
     }
-
-When you executing it, you can see the parser tree.
     
