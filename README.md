@@ -17,7 +17,7 @@ Example
 =======
 You can learn how to use santr by the example.<br>
 
-(1) First,you should create the grammar tree file,which is named Expr.ls,the content is:<br>
+(1) First,you should create the grammar tree,and save it as Expr.ls file,the content is:<br>
 
     grammar Expr;
     
