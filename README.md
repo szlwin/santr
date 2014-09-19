@@ -19,29 +19,34 @@ You can learn how to use santr by the example.<br>
 
 (1) First,you should create the grammar tree,and save it as Expr.ls file,the content is:<br>
 
-    grammar Expr;
-    
-    prog : expr;
-    
-    expr : expr ('*'|'/') expr
-     | expr ('+'|'-') expr
-     | ID
-     | INT
-     | '(' expr ')'
-     | fun;
-     
-     fun: ID '(' ( array )?  ')' ;
-     
-     array: param (',' param)*;
-     
-     param: ID  ('[' INT ']')?
-       | INT
-       | fun
-       | expr;
-       
-       @ID : ^[A-Za-z]+$;
-       
-       @INT : ^[0-9]*$;
-    
 
-
+    
+    
+    
+    Then write a Test.java to build parser tree:
+    
+    import santr.common.context.LexerUtil;
+    import santr.v3.parser.ExpressParser;
+    import santr.view.parser.TreeViewer;
+    
+    
+    public class Test {
+    
+    	/**
+    	 * @param args
+    	 * void
+    	 * @throws Exception 
+    	 */
+    	public static void main(String[] args) throws Exception {
+    		LexerUtil.load("expr", "demo/v2/Expr.ls");
+    		
+    		ExpressParser lexerExecuter = new ExpressParser();
+    		lexerExecuter.parser("expr", "6+max(2+3,min(one,two),three)");
+    		
+    
+    	    TreeViewer viewer = new TreeViewer(lexerExecuter.getTree());
+    	    viewer.open();
+    
+    	}
+    
+    }
