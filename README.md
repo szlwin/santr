@@ -200,7 +200,7 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     	}
     }
 
-(3)Finally,you can get the result by executing the code as:<br>
+(3)Finally,you can get the result by executing the program as:<br>
 
     import java.util.HashMap;
     import java.util.Map;
