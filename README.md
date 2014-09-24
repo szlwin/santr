@@ -73,7 +73,7 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     
     }
     
-(2) Second,write a visitor for the parser tree as:<br>
+(2) Second,write a visitor to walk the parser tree:<br>
 
     import java.util.ArrayList;
     import java.util.HashMap;
@@ -120,7 +120,6 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     				//( expr )
     				context.setValue(this.getChildValue(context,1));
     			}else{
-    				
     				String token = treeInfoList.get(1).getToken();
     				if(token.equals("+")){
     					//expr + expr
@@ -146,7 +145,6 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     	private void executeFun(Context context){
     		//Get the all param value.
     		List<Integer> list = (List<Integer>) this.getChildValue(context,2);
-    		
     		
             int flag = 0;
     		String funName = (String)this.getChildValue(context,0);
