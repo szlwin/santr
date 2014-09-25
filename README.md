@@ -12,6 +12,7 @@ As a result of the study,it's may be:<br>
 
 License
 =======
+Copyright 2014, szlwin.
 
 Licensed under the BSD lincese.
 
