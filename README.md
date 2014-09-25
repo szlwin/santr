@@ -11,7 +11,8 @@ As a result of the study,it's may be:<br>
 (2) It's can't always parse the express corrected,if the grammar is very complex.
 
 License
-Copyright (c) 2014.
+=======
+Copyright (c) 2014.<br>
 Author: szlwin.
 
 Licensed under the BSD lincese.
