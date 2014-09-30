@@ -58,12 +58,12 @@ public class ExpressLexer {
 				tokenStr.setEnd(pos+flowCount);
 				tokenStr.setType(TOKENTYPE.STR);
 				tokenStr.setIndex(index);
-				tokenStr.setText(String.valueOf(expressCharArr, pos, flowCount));
+				tokenStr.setText(String.valueOf(expressCharArr, pos, flowCount-tmpNode.getEndFlag().length));
 				tokenStr.setDataType(tmpNode.getType());
 				tokenStream.add(tokenStr);
 				
 				index++;
-				startPos = nextPos = pos+flowCount+tmpNode.getEndFlag().length;
+				startPos = nextPos = pos+flowCount;
 				isFlag = false;
 				flowCount = 0;
 				continue;

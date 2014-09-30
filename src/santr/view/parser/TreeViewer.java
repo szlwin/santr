@@ -111,6 +111,16 @@ public class TreeViewer extends JComponent {
 				return node.getText();
 			}else{
 				return node.getName();
+				/*String id = "";
+				if(node.getLbs()!=null){
+					id = String.valueOf(node.getLbs().getIndex());
+				}
+				if(node.getLeaf() !=null){
+
+					return node.getLbs().getId()+":"+id+":"+node.getName()+":"+node.getLeaf().getId();
+				}else{
+					return  node.getLbs().getId()+":"+id+":"+node.getName();
+				}*/
 			}
 			/*
 			String id = "";
