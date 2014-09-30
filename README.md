@@ -45,7 +45,7 @@ You can learn how to use santr by the example.<br>
            | fun
            | expr;
            
-    @STRING ''' #STRING ''';
+    @STRING : ''' #STRING ''';
     @ID : ^[A-Za-z]+$;
     @INT : ^[0-9]*$;
     
