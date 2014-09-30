@@ -33,6 +33,7 @@ You can learn how to use santr by the example.<br>
         | INT
         | '(' expr ')'
         | fun
+        | STRING
     ;
     
     fun: ID '(' ( array )?  ')' ;
@@ -43,7 +44,8 @@ You can learn how to use santr by the example.<br>
            | INT
            | fun
            | expr;
-    
+           
+    @STRING ''' #STRING ''';
     @ID : ^[A-Za-z]+$;
     @INT : ^[0-9]*$;
     
@@ -67,7 +69,7 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     		LexerUtil.load("expr", "Expr.ls");
     		
     		ExpressParser parser = new ExpressParser();
-    		parser.parser("expr", "6+max(2+3,min(one,two),three)");
+    		parser.parser("expr", "'6'+max(2+3,min(one,two),three)");
     		
     
     	    TreeViewer viewer = new TreeViewer(parser.getTree());
@@ -107,7 +109,10 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     			executeINT(context);
     		}else if(name.equals("ID")){
     			executeID(context);
+    		}else if(name.equals("STRING")){
+    			executeString(context);
     		}
+    		
     	}
     	
     	public void setParam(Map<String,Object> paramMap){
@@ -194,11 +199,16 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     	
     	private void executeINT(Context context){
     		//Save the value to this tree.
-    		context.setValue(Integer.valueOf((String)context.getText()));
+    		context.setValue(Integer.valueOf(context.getText()));
     	}
     	
     	private void executeID(Context context){
     		context.setValue(paramMap.get(context.getText()));
+    	}
+    	
+    	private void executeString(Context context){
+    		//Save the value to this tree.
+    		context.setValue(Integer.valueOf(context.getText()));
     	}
     }
 
@@ -221,7 +231,7 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     		LexerUtil.load("expr", "Expr.ls");
     		
     		ExpressParser parser = new ExpressParser();
-    		parser.parser("expr", "6+max(2+3,min(one,two),three)");
+    		parser.parser("expr", "'6'+max(2+3,min(one,two),three)");
     		
     		//Create the param.
     		Map<String,Object> param = new HashMap<String,Object>();
