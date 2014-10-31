@@ -2,10 +2,12 @@ package santr.v3.parser.data;
 
 import java.util.List;
 
+import javolution.util.FastTable;
+
 import santr.gtree.model.GTree;
 import santr.v3.execute.Context;
 
-import javolution.util.FastTable;
+
 
 
 public class RTree{
@@ -38,10 +40,11 @@ public class RTree{
     }
     
 	public List<RTree> getrTreeList() {
-		return rTreeList;
+		return rTreeList ;
 	}
 
 	public void addRTree(RTree rTree) {
+
 		rTree.setParentTree(this);
 		this.last = rTree;
 		this.rTreeList.add(rTree);
@@ -105,6 +108,11 @@ public class RTree{
 	
 	public RTree getLast(){
 		return this.last;
+	}
+
+	public void setLast(RTree newTree) {
+		rTreeList.remove(this.last);
+		this.addRTree(newTree);
 	}
 	
 }

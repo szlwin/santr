@@ -35,6 +35,8 @@ public class GrammarInfo extends BData{
 	
 	private TerminalData[] terminalDataArr;
 	
+	private TokenTree tokenTree = new TokenTree();
+	
 	public String getRoot() {
 		return root;
 	}
@@ -109,6 +111,9 @@ public class GrammarInfo extends BData{
 	}
 
 	public void setTokenCharArr(TokenChar[] tokenCharArr) {
+		for(int i = 0; i < tokenCharArr.length;i++){
+			tokenTree.addTree(tokenCharArr[i]);
+		}
 		this.tokenCharArr = tokenCharArr;
 	}
 
@@ -126,6 +131,10 @@ public class GrammarInfo extends BData{
 
 	public void setTerminalDataArr(TerminalData[] terminalDataArr) {
 		this.terminalDataArr = terminalDataArr;
+	}
+
+	public TokenTree getTokenTree() {
+		return tokenTree;
 	}
 
 	//public void setTokenByGtree(TIntObjectHashMap<TokenChar> tokenByGtree) {

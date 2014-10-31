@@ -1,10 +1,10 @@
 package santr.gtree.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import santr.common.util.collections.SimpleList;
 import santr.gtree.model.enume.GROUPTYPE;
 import santr.gtree.model.enume.GTYPE;
 import santr.v3.parser.TokenString;
@@ -40,7 +40,7 @@ public class GTree extends BData{
 	
 	private TerminalData terminalData;
 	
-	private List<GTree> nodeList = new ArrayList<GTree>(2);
+	private List<GTree> nodeList = new SimpleList<GTree>();
 	
 	private int flag;
 	
@@ -50,6 +50,7 @@ public class GTree extends BData{
 	
 	private GROUPTYPE groupType;
 	
+	private int level = 0;
 	
 	public String getName() {
 		return name;
@@ -338,6 +339,14 @@ public class GTree extends BData{
 
 	public List<GTree> getNodeList() {
 		return nodeList;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
 	}
 	
 }

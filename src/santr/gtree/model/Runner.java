@@ -6,8 +6,10 @@ import javolution.util.FastTable;
 
 public class Runner {
 	
-	private List<GTree> gTreeList = new FastTable<GTree>();;
+	private List<GTree> gTreeList = new FastTable<GTree>();
 
+	private boolean isLoop = false;
+	
 	public Runner(){
 
 	}
@@ -33,4 +35,13 @@ public class Runner {
 	public GTree getLast(){
 		return gTreeList.get(gTreeList.size()-1);
 	}
+
+	public boolean isLoop() {
+		return isLoop;
+	}
+
+	public void setLoop(boolean isLoop) {
+		this.isLoop = isLoop;
+	}
+	
 }

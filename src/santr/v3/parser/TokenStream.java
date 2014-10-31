@@ -4,6 +4,8 @@ import java.util.List;
 
 import javolution.util.FastTable;
 
+
+
 public class TokenStream {
 	
 	public static final int TYPE_STR = 1;
@@ -15,6 +17,8 @@ public class TokenStream {
 	private int cIndex = 0;
 	
 	private int lIndex = -1;
+	
+	private TokenString last;
 	
 	public TokenStream(){
 
@@ -50,8 +54,8 @@ public class TokenStream {
 	}
 	
 	public TokenString getLast(){
-		TokenString tokenStr = tokenList.get(tokenList.size()-1);
-		return tokenStr;
+		//TokenString tokenStr = tokenList.get(tokenList.size()-1);
+		return last;
 	}
 	
 	public void setLexerIndex(int index){
@@ -60,6 +64,7 @@ public class TokenStream {
 	}
 	
 	protected void add(TokenString tokenStr){
+		last = tokenStr;
 		tokenList.add(tokenStr);
 	}
 	

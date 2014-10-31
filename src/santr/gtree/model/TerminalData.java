@@ -22,12 +22,14 @@ public class TerminalData {
 	
 	private int type;
 
+	private boolean isMatch = false;
 	public String getMatch() {
 		return match;
 	}
 
 	public void setMatch(String match) {
 		if(match != null){
+			isMatch = true;
 			this.match = match;
 			pattern = Pattern.compile(match);
 		}
@@ -42,16 +44,17 @@ public class TerminalData {
 	}
 
 	public boolean matcher(TokenString token) {
-		if(match == null 
-				&& token.getDataType() == this.type){
-			return true;
-		}
-		if(matcher == null){
-			matcher = pattern.matcher(token.getText());
+		if(!isMatch){
+			return token.getDataType() == this.type;
 		}else{
-			matcher.reset(token.getText());
+			if(matcher == null){
+				matcher = pattern.matcher(token.getText());
+			}else{
+				matcher.reset(token.getText());
+			}
+			return matcher.matches();
 		}
-		return matcher.matches();
+
 	}
 
 	public int getType() {

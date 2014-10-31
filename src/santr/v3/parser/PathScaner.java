@@ -2,14 +2,15 @@ package santr.v3.parser;
 
 import java.util.List;
 
+import javolution.util.FastTable;
+
 import santr.gtree.model.GTree;
 import santr.gtree.model.LineInfo;
 import santr.gtree.model.Runner;
+import santr.gtree.model.TFlag;
 import santr.gtree.model.enume.GROUPTYPE;
 import santr.gtree.model.enume.GTYPE;
 import santr.v3.parser.data.RTree;
-
-import javolution.util.FastTable;
 
 
 public class PathScaner {
@@ -23,6 +24,7 @@ public class PathScaner {
 	
 	private GTree first;
 	public void scan(RTree rTree,int tId,String token){
+		//System.out.println(token);
 		this.token = token;
 		this.tId = tId;
 		if(rTree.getLeaf()!=null){
@@ -38,7 +40,6 @@ public class PathScaner {
 		}else{
 			convert();
 		}
-		
 	}
 	
 	protected boolean checkExpress(RTree preTree,GTree checkLBS,RTree parentTree){
@@ -69,12 +70,6 @@ public class PathScaner {
 		}
 	}
 	
-	/*private boolean check(GTree gTree,GTree tokenLbs){
-		return tokenLbs.getFlag() - gTree.getFlag()==1
-				&& (gTree.getGroup() == 0
-				|| gTree.getGroup() == tokenLbs.getGroup());
-	}*/
-	
 	private void online(RTree rTree){
 		if(rTree.getLeaf()!=null
 				&& rTree.getLeaf().getToken() !=null 
@@ -98,13 +93,13 @@ public class PathScaner {
 							&& gTreeArr[i].getToken().containsKey(tId)){
 						LineInfo lineInfo = createLine(gTreeArr[i],null,0);
 						lineInfoList.add(lineInfo);
-						break;
 					}
 				}
 			}
 		}
 		
 	}
+	
 	private void up(RTree rTree){
 		
 		if(rTree == null)
@@ -147,6 +142,7 @@ public class PathScaner {
 		if(pTree.getToken() != null && pTree != first){
 			index = pTree.getToken().getTflag()[0].getLbs().getIndex();
 		}
+		
 		for(int i =0 ; i <gTreeArr.length;i++ ){
 			GTree subTree = gTreeArr[i];
 
@@ -156,21 +152,37 @@ public class PathScaner {
 					&& (subTree.getIndex()<index) || subTree.getType() == GTYPE.LEAF){
 
 				Runner subRunner = copy(runner);
-				//System.out.println(subTree.getId()+":"+subTree.getName());
+
 				if(subTree.getToken() != null
 						&& subTree.getToken().containsKey(tId)){
+					
+					TFlag tokenFlag = subTree.getToken().getTFlag(tId);
+
+					TFlag[] tflag = subTree.getToken().getTflag();
+					
+					for(int j = 0; j < tflag.length;j++){
+						if((tflag[j].getLbs().getGroup() == 0 || 
+								tflag[j].getLbs().getGroup() == tokenFlag.getLbs().getGroup())
+								&& tflag[j].getLbs().getIndex() < tokenFlag.getLbs().getIndex()){
+							return;
+						}
+					}
+					
 					subRunner.add(subTree);
-					//System.out.println("find:"+subTree.getId()+":"+subTree.getName());
 					runnerList.add(subRunner);
 				}else{
 
 					subRunner.add(subTree);
+	
 					if(subTree.getType() == GTYPE.LBS){
 						subTree = subTree.getRel();
 					}
 					if(subTree.getType() != GTYPE.NODE
 							&& subTree != first){
 						
+						if(subTree.getId() == 0){
+							subRunner.setLoop(true);
+						}
 						down(subTree,subRunner);
 					}
 				}
@@ -190,6 +202,7 @@ public class PathScaner {
 	private Runner copy(Runner sourceRunner){
 		Runner runner = new Runner();
 		runner.addAll(sourceRunner.getgTreeList());
+		runner.setLoop(sourceRunner.isLoop());
 		return runner;
 	}
 	
@@ -207,11 +220,16 @@ public class PathScaner {
 			lineInfo.setEnd(gTree.getId());
 			lineInfo.setLeafId(-1);
 		}
-		lineInfo.setRunner(runner);
+		if(runner!=null && runner.isLoop()){
+			lineInfo.setRunner(runner);
+		}
+		
 		lineInfo.setId(tId);
 		lineInfo.setDeep(deep);
 		lineInfo.setToken(token);
 		
 		return lineInfo;
 	}
+	
+
 }

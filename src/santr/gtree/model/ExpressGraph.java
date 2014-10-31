@@ -6,10 +6,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import santr.common.util.collections.SimpleList;
 import santr.gtree.model.enume.GTYPE;
+import santr.v3.parser.data.RTree;
 
 import javolution.util.FastMap;
-import javolution.util.FastTable;
 
 
 
@@ -44,7 +45,8 @@ public class ExpressGraph {
 			
 			
 		}
-		/*for(int i = 0; i < gList.size();i++){
+		/*
+		for(int i = 0; i < gList.size();i++){
 			
 			GTree gTree = gList.get(i);
 			convertNode(gTree);
@@ -57,7 +59,27 @@ public class ExpressGraph {
 		//eGraphList.clear();
 		//println();
 	}
-	
+	private void online(GTree gTree){
+
+		if(gTree.getToken()!=null){
+			convertToLine(gTree.getId(),
+					gTree.getToken().getTflag(),gTree.getId(),0,-1);
+			return;
+		}
+		GTree gTreeArr[] = gTree.getgTreeArray();
+		if(gTreeArr!=null){
+
+			for(int i =0 ;i < gTreeArr.length;i++){
+				if(gTreeArr[i].getType() == GTYPE.LEAF 
+						&& gTreeArr[i].getToken() !=null){
+					convertToLine(gTree.getId(),
+							gTreeArr[i].getToken().getTflag(),gTree.getId(),0,gTreeArr[i].getId());
+				}
+			}
+		}
+		
+		
+	}
 	public List<LineInfo> get(int id,int token){
 		return eGraph[id].get(token);
 	}
@@ -67,6 +89,7 @@ public class ExpressGraph {
 			copy(gTree,grammarInfo);
 		}
 	}
+	
 	/*
 	private void addSubPath(GTree gTree,GTree subTree,String name){
 		GTree[] gTreeArray =  gTree.getgTreeArray();
@@ -454,10 +477,10 @@ public class ExpressGraph {
 						+",token="+lineArray[i].getToken()
 						+",deep="+lineArray[i].getDeep()
 						+",leaf="+lineArray[i].getLeafId());
-			*/
-
+			
+			 */
 			if(!lineMap.containsKey(lineArray[i].getId())){
-				List<LineInfo> list = new FastTable<LineInfo>();
+				List<LineInfo> list = new SimpleList<LineInfo>();
 				list.add(lineArray[i]);
 				lineMap.put(lineArray[i].getId(), list);
 			}else{

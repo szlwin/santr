@@ -117,7 +117,8 @@ public class TreeLayoutAdaptor implements TreeForTreeLayout<RTree> {
 
 	
 	public boolean isLeaf(RTree node) {
-		return node.getrTreeList().size() == 0;
+		return node
+				.getrTreeList().size() == 0;
 	}
 
 	

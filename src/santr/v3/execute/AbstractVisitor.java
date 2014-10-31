@@ -2,10 +2,10 @@ package santr.v3.execute;
 
 import java.util.List;
 
+import javolution.util.FastTable;
+
 import santr.gtree.model.BData;
 import santr.v3.parser.data.RTree;
-
-import javolution.util.FastTable;
 
 
 public abstract class AbstractVisitor implements Visitor{

@@ -14,8 +14,6 @@ import santr.gtree.model.enume.TOKENTYPE;
 import santr.parser.exception.ParserInvaildException;
 import santr.v3.parser.data.RTree;
 
-import javolution.util.FastTable;
-
 
 class ToolUtil {
 	
@@ -43,7 +41,7 @@ class ToolUtil {
 	}
 	
 	protected boolean isEmpty(RTree rTree){
-		return rTree.getrTreeList().isEmpty();
+		return rTree.getLast() == null;
 	}
 	
 	protected void setLeafByExpress(RTree rTree){
@@ -149,7 +147,7 @@ class ToolUtil {
 		GTree gTree = null;;
 
 		GTree nextLBS = null;
-		if(!rTree.getrTreeList().isEmpty()){
+		if(!this.isEmpty(rTree)){
 			GTree preLBS = rTree.getLast()
 					.getLbs();
 			
@@ -261,8 +259,8 @@ class ToolUtil {
 				preTokenStr);
 	}
 	
-	protected List<RTree> createAllPreTree(GTree cleaf) throws ParserInvaildException{
-		List<RTree> rTreeList =  new FastTable<RTree>();
+	protected void createAllPreTree(GTree cleaf, RTree currentTree) throws ParserInvaildException{
+		//List<RTree> rTreeList =  new ObjectArrayList<RTree>();
 		int unLindex = tokenStream.getLexerIndex()+1;
 		int count = 0;
 		while(unLindex < tokenStream.getCurrentIndex()-1){
@@ -272,7 +270,7 @@ class ToolUtil {
 			if(tmpToken.getType() == TOKENTYPE.TOKEN){
 				RTree rTree = createTokenTree(tmpToken);
 				rTree.setLbs(cleaf.getgTreeArray()[count]);
-				rTreeList.add(rTree);
+				currentTree.addRTree(rTree);
 			}else{
 				GTree lbs = cleaf.getgTreeArray()[count];
 				GTree gTree = lbs.getRel();
@@ -281,7 +279,7 @@ class ToolUtil {
 					RTree rTree = this.createTokenTree(tmpToken);
 					rTree.setName(gTree.getName());
 					rTree.setLbs(lbs);
-					rTreeList.add(rTree);
+					currentTree.addRTree(rTree);
 				}else{
 					RTree rTree = new RTree();
 					rTree.setName(gTree.getName());
@@ -290,14 +288,13 @@ class ToolUtil {
 					RTree nodeTree = createNodeTree(rTree,
 							tmpToken);
 					rTree.addRTree(nodeTree);
-					rTreeList.add(rTree);
+					currentTree.addRTree(rTree);
 				}
 			}
 
 			count++;
 			unLindex++;
 		}
-		return rTreeList;
 		
 	}
 	protected RTree createPreTree(GTree cleaf) throws ParserInvaildException 

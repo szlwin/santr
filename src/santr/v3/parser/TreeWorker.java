@@ -2,6 +2,8 @@ package santr.v3.parser;
 
 import java.util.List;
 
+import javolution.util.FastTable;
+
 import santr.gtree.model.BData;
 import santr.gtree.model.GTree;
 import santr.gtree.model.GrammarInfo;
@@ -10,12 +12,10 @@ import santr.gtree.model.enume.GTYPE;
 import santr.parser.exception.ParserInvaildException;
 import santr.v3.parser.data.RTree;
 
-import javolution.util.FastTable;
-
 
 public class TreeWorker {
 	
-	private RTree root;
+	private RTree root = new RTree();
 	
 	private RTree currentTree;
 	
@@ -36,13 +36,19 @@ public class TreeWorker {
 		//this.isNeedMatch = isNeedMatch;
 	}
 	
-	public TreeWorker(char[] expressCharArr, GrammarInfo grammarInfo,RTree root, TokenStream tokenStream){
+	public TreeWorker(char[] expressCharArr, GrammarInfo grammarInfo, TokenStream tokenStream){
 
-		this.root = root;
+		//this.root = root;
+		
+		root.setName(grammarInfo.getRoot());
+		root.setType(BData.FLAG_TYPE_VAR);
+		//rTree.setEnd(expressCharArr.length);
+		root.setLbs(grammarInfo.getgTree());
+		
 		currentTree = this.root;
 		toolUtil = new ToolUtil(grammarInfo,tokenStream);
 		toolUtil.setLeafByExpress(this.root);
-		end = expressCharArr.length;
+		end = tokenStream.getLast().getEnd();
 		//this.tokenStream = tokenStream;
 	}
 	
@@ -63,8 +69,13 @@ public class TreeWorker {
 				doWithNode();
 			}
 		}
+		clear();
 	}
-
+	
+	private void clear(){
+		upTree = null;
+	}
+	
 	private void doWithToken() throws ParserInvaildException
 	{
 
@@ -113,38 +124,26 @@ public class TreeWorker {
 		
 	}
 	
-	private RTree copy(RTree sRTree){
-		RTree rTree = new RTree();
-
-		rTree.setName(sRTree.getName());
-		rTree.setType(sRTree.getType());
-		//rTree.setLeaf(sRTree.getLeaf());
-		//rTree.setLbs(sRTree.getLbs());
-		rTree.setText(sRTree.getText());
-		
-		List<RTree> treeList = sRTree.getrTreeList();
-		if(!treeList.isEmpty()){
-			for(int i = 0; i < treeList.size();i++){
-				rTree.addRTree(treeList.get(i));
-			}
-		}
-		sRTree.getrTreeList().clear();
-		sRTree.addRTree(rTree);
-		return rTree;
+	private void copy(RTree src,RTree dest){
+		dest.setLbs(src.getLbs());
+		dest.setName(src.getName());
+		dest.setType(src.getType());
+		dest.setText(src.getText());
 	}
 	
-	private void pop(GTree leaf){
-		RTree newTree = null;
-		RTree rTree = currentTree.getLast();
-		if(rTree.getType() == BData.FLAG_TYPE_VARN){
-			newTree  = copy(rTree);
-			currentTree = rTree;
+	private void pop(){
+		RTree newTree = new RTree();
+		if(currentTree == root){
+			copy(root,newTree);
+			//newTree.setLbs(root.getLbs());
+			root = newTree;
 		}else{
-			newTree = copy(currentTree);
-			newTree.setLbs(leaf.getgTreeArray()[0]);
+			RTree parent = currentTree.getParentTree();
+			newTree.setLbs(parent.getLeaf().getgTreeArray()[0]);
+			parent.setLast(newTree);
 		}
-		
-		newTree.setLbs(leaf.getgTreeArray()[0]);
+		newTree.addRTree(currentTree);
+		currentTree = newTree;
 	}
 	
 	private void moveUp(){
@@ -166,7 +165,7 @@ public class TreeWorker {
 				&& toolUtil.getTokenString().getEnd() != end){
 			RTree lastTree = currentTree.getLast();
 			if(toolUtil.isLastTree(lastTree.getLbs())){
-				pop(currentTree.getLeaf());
+				pop();
 				return;
 			}
 		}
@@ -201,6 +200,7 @@ public class TreeWorker {
 				toolUtil.scan(currentTree);
 				lineInfoList = toolUtil.getLineInfo(currentTree);
 			}
+			
 			if(lineInfoList.size() == 1){
 				return lineInfoList.get(0);
 			}else{
@@ -277,7 +277,7 @@ public class TreeWorker {
 	
 	private void checkExpress(RTree preTree,GTree checkLBS,RTree parentTree) throws ParserInvaildException
 	{
-		if(preTree.getrTreeList().isEmpty() 
+		if(toolUtil.isEmpty(preTree) 
 				&& preTree.getType() == BData.FLAG_TYPE_VAR){
 			throw new ParserInvaildException(toolUtil.getTokenString());
 		}
@@ -286,18 +286,68 @@ public class TreeWorker {
 			throw new ParserInvaildException(toolUtil.getTokenString());
 		}
 	}
+	private RTree upTree = null;
+	
+	private void skipBylevel(RTree parent,int cLevel){
+		//if(!toolUtil.isEmpty(currentTree)){
+		//	return false;
+		//}
+		
+		if(cLevel > 0){
+			if(parent!=null
+					&& parent.getLeaf().getLevel() > 0
+					&& cLevel >= parent.getLeaf().getLevel()){
+				upTree = parent;
+				skipBylevel(parent.getParentTree(),cLevel);
+			}
+		}
+	}
 	
 	private void online(GTree cleaf) throws ParserInvaildException
 	{	
-		
 		currentTree.setLeaf(cleaf);
+		
+		boolean isEmpty = toolUtil.isEmpty(currentTree);
 
-		//if(toolUtil.isEmpty(currentTree)){
-			RTree rTree = toolUtil.createPreTree(cleaf);
+		RTree rTree = toolUtil.createPreTree(cleaf);
+		
+		if(isEmpty){
+			skipBylevel(currentTree.getParentTree(),cleaf.getLevel());
+			
+			if(upTree!=null){
+				changeByLevel(rTree,cleaf,upTree);
+			}else{
+				if(rTree != null){
+					currentTree.addRTree(rTree);
+				}
+			}
+		}else{
 			if(rTree != null){
 				currentTree.addRTree(rTree);
 			}
-		//}
+		}
+	}
+	
+	private void changeByLevel(RTree rTree ,GTree leaf,RTree upTree){
+		RTree parent = currentTree.getParentTree();
+		parent.setLast(rTree);
+		
+		if(upTree == root){
+			
+			currentTree.addRTree(upTree);
+			currentTree.setLbs(root.getLbs());
+			currentTree.setParentTree(null);
+			
+			root.setLbs(leaf.getgTreeArray()[0]);
+			root = currentTree;
+			
+		}else{
+			RTree upParent = upTree.getParentTree();
+			currentTree.setLbs(upParent.getLast().getLbs());
+			upParent.setLast(currentTree);
+			currentTree.addRTree(upTree);
+			upTree.setLbs(currentTree.getLeaf().getgTreeArray()[0]);
+		}
 	}
 	
 	private void up(int flag, GTree cleaf) throws ParserInvaildException 
@@ -309,14 +359,14 @@ public class TreeWorker {
 			currentTree.addRTree(rTree);
 			this.moveUp();
 		}else{
-			if(currentTree.getrTreeList().isEmpty()){
+			if(toolUtil.isEmpty(currentTree)){
 				throw new ParserInvaildException(toolUtil.getTokenString());
 			}
 		}
 		
 		while(currentTree.getLeaf().getToken() ==null 
 				|| !currentTree.getLeaf().getToken()
-				.containsKey(toolUtil.getTokenString().getId())
+						.containsKey(toolUtil.getTokenString().getId())
 				//cleaf != currentTree.getLeaf()
 				){
 			currentTree = currentTree.getParentTree();
@@ -347,13 +397,13 @@ public class TreeWorker {
 		
 		if(toolUtil.isEmpty(currentTree)){
 			
-			
-			List<RTree> rTreeList = toolUtil.createAllPreTree(cleaf);
-			if(!rTreeList.isEmpty()){
-				for(int i = 0;i < rTreeList.size();i++){
-					currentTree.addRTree(rTreeList.get(i));
-				}
-			}
+			toolUtil.createAllPreTree(cleaf,currentTree);
+			//List<RTree> rTreeList = toolUtil.createAllPreTree(cleaf);
+			//if(!rTreeList.isEmpty()){
+			//	for(int i = 0;i < rTreeList.size();i++){
+			//		currentTree.addRTree(rTreeList.get(i));
+			//	}
+			//}
 		}
 		/*
 		if(toolUtil.isEmpty(currentTree)){
@@ -381,4 +431,7 @@ public class TreeWorker {
 		return currentTree;
 	}
 
+	protected RTree getRoot() {
+		return root;
+	}
 }

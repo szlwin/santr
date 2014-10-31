@@ -22,8 +22,6 @@ import santr.gtree.model.enume.GROUPTYPE;
 import santr.gtree.model.enume.GTYPE;
 import santr.gtree.model.enume.TOKENTYPE;
 
-import javolution.util.FastTable;
-
 
 public class GrammerTreeParser {
 
@@ -32,8 +30,6 @@ public class GrammerTreeParser {
 	private int id = 0;
 	
 	private boolean isFirst = true;
-	
-	//private char SPACE = ' ';
 	
 	private String END_FLAG = ";";
 	
@@ -45,7 +41,7 @@ public class GrammerTreeParser {
 	
 	private List<TerminalData> terminalDataList = new ArrayList<TerminalData>();
 	
-	private List<GTree> gTreeAllList = new FastTable<GTree>();
+	//private List<GTree> gTreeAllList = new FastTable<GTree>();
 	
 	public GrammarInfo parse(String filePath) throws IOException{
 		
@@ -93,10 +89,6 @@ public class GrammerTreeParser {
 
 		GTree gTreeArr[] = new GTree[grammarInfo.getTreeList().size()];
 		grammarInfo.getTreeList().toArray(gTreeArr);
-		//while(it.hasNext()){
-		//	GTree gTree = it.next();
-		//	gTreeArr[gTree.getId()] = gTree;
-		//}
 		grammarInfo.setgTreeArr(gTreeArr);
 		return grammarInfo;
 	}
@@ -213,7 +205,6 @@ public class GrammerTreeParser {
 		int eStartIndex = 0;
 		
 		int tmpGroup =0;
-		//int treeIndex = 0;
 		for(;index < charStr.length;index++){
 			switch(charStr[index]){
 			    case ' ':
@@ -225,18 +216,11 @@ public class GrammerTreeParser {
 							gTree3.setGroup(group);
 							gTree3.setGroupType(groupType);
 							gTreeList.add(gTree3);
-							//String subStr = String.valueOf(charStr,stratIndex,index-stratIndex);
-							//System.out.println("dss:"+subStr);
-							//parseLTree(pTree,subStr,group,groupType);
 							treeIndex++;
 						}
 
-						
-						//gTree3.setParent(pTree);
 						eStartIndex = index+1;
 						stratIndex = index+1;
-						//nextflag = 1;
-						
 						isEStart = true;
 					}
 			    	break;
@@ -292,8 +276,6 @@ public class GrammerTreeParser {
 						nextflag = 1;
 						isEStart = false;
 					}
-
-
 					break;
 				case ')':
 					if(nextflag == 1
@@ -405,12 +387,7 @@ public class GrammerTreeParser {
 			token.setTflag(tFlagArray);
 			pTree.setToken(token);
 		}
-
-		
-		
-		//tokenIndex = 0;
 	}
-	
 	
 	private void parseTree(GTree pTree,String expressTreeStr){
 		char charStr[] = expressTreeStr.toCharArray();
@@ -418,9 +395,6 @@ public class GrammerTreeParser {
 		int nextflag = 0;
 		int preflag = 0;
 		int index = 0;
-		
-		//int stratIndex = index;
-		//int endIndex = 0;
 		
 		boolean isStart = true;
 		
@@ -505,9 +479,13 @@ public class GrammerTreeParser {
 				gTreeArray[i].setParent(pTree);
 				gTreeArray[i].setType(GTYPE.LEAF);
 				gTreeArray[i].setRel(gTreeArray[i]);
+				if( i>0 ){
+					setLevel(gTreeArray[i-1],gTreeArray[i]);
+				}
+				
 				id++;
 				
-				gTreeAllList.add(gTreeArray[i]);
+				//gTreeAllList.add(gTreeArray[i]);
 				grammarInfo.addTree(gTreeArray[i]);
 				//if(checkIsAllLbs(gTreeArray[i])){
 					//copy(gTreeArray[i]);
@@ -517,6 +495,41 @@ public class GrammerTreeParser {
 		}
 
 	}
+	
+	private void setLevel(GTree src,GTree dest){
+		GTree srcArray[] = src.getgTreeArray();
+		GTree destArray[] = dest.getgTreeArray();
+		int index = 0;
+		if(srcArray.length == destArray.length){
+			for(; index < srcArray.length;index++){
+				GTree srcGTree = srcArray[index];
+				GTree destGTree = destArray[index];
+				if(srcGTree.getGroup()!=0 
+						|| destGTree.getGroup()!=0){
+					break;
+				}
+				if(srcGTree.getType() == GTYPE.TOKEN){
+					if(destGTree.getType() != GTYPE.TOKEN){
+						break;
+					}
+				}else{
+					if(destGTree.getType() == srcGTree.getType()){
+						if(!srcGTree.getName().equals(destGTree.getName())){
+							break;
+						}
+					}
+				}
+			}
+			
+			if(index == srcArray.length){
+				if(src.getLevel()==0){
+					src.setLevel(1);
+				}
+				dest.setLevel(src.getLevel()+1);
+			}
+		}
+	}
+	
 	private void copy(GTree gTree){
 		GTree[] gTreeArray =  gTree.getgTreeArray();
 		for(int i = 0; i < gTreeArray.length;i++){
@@ -537,6 +550,7 @@ public class GrammerTreeParser {
 			}
 		}
 	}
+	
 	private boolean checkIsAllLbs(GTree gTree){
 		GTree[] gTreeArray =  gTree.getgTreeArray();
 		for(int i = 0; i < gTreeArray.length;i++){
@@ -546,11 +560,8 @@ public class GrammerTreeParser {
 		}
 		return true;
 	}
+	
 	private GTree parseSubTree(String str){
-		//if(str.startsWith("@")){
-		//	str = str.substring(1);
-		//	return createNode(str);
-		//}
 		return createGTree(str,GTYPE.NULL);
 	}
 
@@ -561,7 +572,7 @@ public class GrammerTreeParser {
 		
 		if(!this.grammarInfo.getgTreeMap().containsKey(str)){
 			gTree.setId(id);
-			gTreeAllList.add(gTree);
+			//gTreeAllList.add(gTree);
 			id++;
 			this.grammarInfo.getgTreeMap().put(str, gTree);
 			grammarInfo.addTree(gTree);
@@ -595,7 +606,7 @@ public class GrammerTreeParser {
 				egTree.setRelName(expName);*/
 				//gTree.setDeep(deep);
 				//deep++;
-				gTreeAllList.add(gTree);
+				//gTreeAllList.add(gTree);
 				id++;
 				
 				grammarInfo.getgTreeMap().put(expName, gTree);
@@ -604,14 +615,10 @@ public class GrammerTreeParser {
 			}
 		}
 		
-		
-		
 		return gTree;
 	}
 	
 	private List<TFlag> tokenList = new ArrayList<TFlag>();
-	
-	//private int tokenIndex = 0;
 	
 	private void parseTokenGroup(String str, int treeIndex, GTree gTree){
 		
@@ -690,9 +697,7 @@ public class GrammerTreeParser {
 			tokenList.add(tFlag);
 			
 		}
-		
 		return gTree;
-
 	}
 	
 	private void parseNode(String name,GTree gTree,String str){
@@ -714,6 +719,10 @@ public class GrammerTreeParser {
 			}
 			node.setType(BData.DATA_TYPE_STR);
 			terminalDataList.add(node);
+			gTree.setTerminalData(node);
+		}else if(str.startsWith("#NUMBER")){
+			TerminalData node = new TerminalData();
+			node.setType(BData.DATA_TYPE_NUMBER);
 			gTree.setTerminalData(node);
 		}else{
 			TerminalData node = new TerminalData();

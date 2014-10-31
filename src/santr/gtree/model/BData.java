@@ -37,4 +37,6 @@ public class BData implements Serializable{
 	//public final static int GTREE_TYPE_LBS = 6;
 	
 	public final static int DATA_TYPE_STR = 1;
+	
+	public final static int DATA_TYPE_NUMBER = 2;
 }
