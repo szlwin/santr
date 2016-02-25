@@ -312,40 +312,39 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
 
 (3)Finally,you can get the result by executing the program as:<br>
 
-    import java.util.HashMap;
-    import java.util.Map;
-    import santr.common.context.LexerUtil;
-    import santr.v3.parser.ExpressParser;
-    
-    public class TestVisitor {
-    
-    	/**
-    	 * @param args
-    	 * void
-    	 * @throws Exception 
-    	 */
-    	public static void main(String[] args) throws Exception {
-    		//Load the grammar file,only need load once.
-    		LexerUtil.load("expr", "Expr.ls");
-    		
-    		ExpressParser parser = new ExpressParser();
-    		parser.parser("expr", "'6'+max(2+3,min(one,two),three)");
-    		
-    		//Create the param.
-    		Map<String,Object> param = new HashMap<String,Object>();
-    		param.put("min", "min");
-    		param.put("max", "max");
-    		param.put("one", 2);
-    		param.put("two", 3);
-    		param.put("three", 10);
-    		
-    		TExprVisitor tExprVisitor = new TExprVisitor();
-    		tExprVisitor.setParam(param);
-    		tExprVisitor.vist(parser.getTree());
-    	    System.out.println(tExprVisitor.getResult());
-    	}
-    
-    }
+	import java.util.HashMap;
+	import java.util.Map;
+	import santr.common.context.LexerUtil;
+	import santr.v4.parser.ExpressParser;
+	
+	public class TestVisitor {
+	       /**
+	         * @param args
+	         * void
+	         * @throws Exception 
+	         */
+	         public static void main(String[] args) throws Exception {
+	              //Load the grammar file,only need load once.
+	              LexerUtil.load("expr", "demo/v2/ExprCT.ls");
+	              
+	              ExpressParser parser = LexerUtil.getParser();
+	              parser.parser("expr", "one <= two and ( '6'+max(2+3,min(one,two),three) > 4 or two < three )");
+	              
+	              //Create the param.
+	              Map<String,Object> param = new HashMap<String,Object>();
+	              param.put("min", "min");
+	              param.put("max", "max");
+	              param.put("one", 2D);
+	              param.put("two", 3D);
+	              param.put("three", 10D);
+	              	
+	              ExprCVisitor tExprVisitor = new ExprCVisitor();
+	              tExprVisitor.setParamer(param);
+	              tExprVisitor.vist(parser.getTree());
+	              System.out.println(parser.getTree().getRuleContext().getValue());
+	        }
+	
+	}
 
-It's will output 16.
+It's will output true.
     
