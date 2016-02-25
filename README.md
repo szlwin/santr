@@ -79,7 +79,7 @@ You can learn how to use santr by the example.<br>
 Then write a Test.java to build parser tree by the Expr.ls file.When you executing it, you can see the parser tree.
     
     import santr.common.context.LexerUtil;
-    import santr.v3.parser.ExpressParser;
+    import santr.v4.parser.ExpressParser;
     import santr.view.parser.TreeViewer;
     
     
