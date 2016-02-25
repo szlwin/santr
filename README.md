@@ -81,136 +81,237 @@ Then write a Test.java to build parser tree by the Expr.ls file.When you executi
     
 (2) Second,write a visitor to walk the parser tree:<br>
 
-    import java.util.ArrayList;
-    import java.util.HashMap;
-    import java.util.List;
-    import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-    import santr.v3.execute.AbstractVisitor;
-    import santr.v3.execute.Context;
-    import santr.v3.execute.TreeInfo;
+import santr.parser.exception.ExecuteInvaildException;
+import santr.v4.execute.AbstractVisitor;
+import santr.v4.parser.ParserTree;
+import santr.v4.parser.RuleContext;
 
-    public class TExprVisitor extends AbstractVisitor{
+public class ExprCVisitor extends AbstractVisitor<Map<String,Object>>{
+	
+	private static final Map<String, Complute> compluteMap 
+		= new HashMap<String, Complute>();
+	private static final Map<String, NumberCompare> numberCompareMap 
+		= new HashMap<String, NumberCompare>();
+	
+	private static final Map<String, StringCompare> stringCompareMap 
+		= new HashMap<String, StringCompare>();
+	
+	static{
+		Complute[] allComplute = Complute.values ();
 
-    	private Map<String,Object> paramMap = new HashMap<String,Object>();
+        for (Complute complute : allComplute) {
+
+    	   compluteMap.put(complute.getOperator(), complute);
+        }
+        
+        NumberCompare[] allNumberCompare = NumberCompare.values ();
+
+        for (NumberCompare numberCompare : allNumberCompare) {
+
+        	numberCompareMap.put(numberCompare.getOperator(), numberCompare);
+        }
+        
+        StringCompare[] allStringCompare = StringCompare.values ();
+
+        for (StringCompare stringCompare : allStringCompare) {
+
+        	stringCompareMap.put(stringCompare.getOperator(), stringCompare);
+        }
+	}
+	
+    public enum Complute{
     	
-    	public void execute(Context context) {
-    		//Get the tree name.
-    		String name = context.getName();
-    		if(name.equals("expr")){
-    			executeExpr(context);
-    		}else if(name.equals("fun")){
-    			executeFun(context);
-    		}else if(name.equals("array")){
-    			executeArray(context);
-    		}else if(name.equals("param")){
-    			executeParam(context);
-    		}else if(name.equals("INT")){
-    			executeINT(context);
-    		}else if(name.equals("ID")){
-    			executeID(context);
-    		}else if(name.equals("STRING")){
-    			executeString(context);
-    		}
-    		
-    	}
-    	
-    	public void setParam(Map<String,Object> paramMap){
-    		this.paramMap.putAll(paramMap);
-    	}
-    	
-    	private void executeExpr(Context context){
-    		if(context.getChildCount() == 1){
-    			context.setValue(this.getChildValue(context,0));
-    		}else{
-    			//Get all the tree info.
-    			List<TreeInfo> treeInfoList =  this.getAllChild(context);
-    			if(treeInfoList.get(0).isToken()){
-    				//( expr )
-    				context.setValue(this.getChildValue(context,1));
-    			}else{
-    				String token = treeInfoList.get(1).getToken();
-    				if(token.equals("+")){
-    					//expr + expr
-    					context.setValue((Integer)this.getChildValue(context,0)
-    							+(Integer)this.getChildValue(context,2));
-    				}else if(token.equals("-")){
-    					//expr - expr
-    					context.setValue((Integer)this.getChildValue(context,0)
-    							-(Integer)this.getChildValue(context,2));
-    				}else if(token.equals("/")){
-    					//expr / expr
-    					context.setValue((Integer)this.getChildValue(context,0)
-    							/(Integer)this.getChildValue(context,2));
-    				}else if(token.equals("*")){
-    					//expr * expr
-    					context.setValue((Integer)this.getChildValue(context,0)
-    							*(Integer)this.getChildValue(context,2));
-    				}
-    			}
-    		}
-    	}
-    	
-    	private void executeFun(Context context){
-    		//Get the all param value.
-    		List<Integer> list = (List<Integer>) this.getChildValue(context,2);
-    		
-            int flag = 0;
-    		String funName = (String)this.getChildValue(context,0);
-    		
-    		if(funName.equals("max")){
-    			flag = 1;
-    		}else if(funName.equals("min")){
-    			flag = -1;
-    		}
-    		
-    		int value = list.get(0);
-    		for(int i = 1;i < list.size();i++){
-    			int num = list.get(i);
-    			if((num - value)*flag>0 ){
-    				value = num;
-    			}
-    		}
-    		context.setValue(value);
-    	}
-    	
-    	private void executeArray(Context context){
-    		List<Integer> list = new ArrayList<Integer>();
-    		List<TreeInfo> treeInfoList =  this.getAllChild(context);
-    		//param (',' param)*;
-    		for(int i =0; i < treeInfoList.size();i++){
-    			if(!treeInfoList.get(i).isToken()){
-    				list.add((Integer)this.getChildValue(context,i));
-    			}
-    		}
-    		context.setValue(list);
-    	}
-    	
-    	private void executeParam(Context context){
-    		if(context.getChildCount()==1){
-    			//ID | INT| fun| expr 
-    			context.setValue(this.getChildValue(context,0));
-    		}else{
-    			// ID  '[' INT ']'
-    			List<Integer> paramList = (List<Integer>)this.getChildValue(context,0);
-    			context.setValue(paramList.get((Integer) this.getChildValue(context,2)));
-    		}
-    	}
-    	
-    	private void executeINT(Context context){
-    		//Save the value to this tree.
-    		context.setValue(Integer.valueOf(context.getText()));
-    	}
-    	
-    	private void executeID(Context context){
-    		context.setValue(paramMap.get(context.getText()));
-    	}
-    	
-    	private void executeString(Context context){
-    		//Save the value to this tree.
-    		context.setValue(Integer.valueOf(context.getText()));
-    	}
+        ADD("+"){double eval(double x,double y){return x+y;}},   
+        SUB("-"){double eval(double x,double y){return x-y;}},   
+        MUL("*"){double eval(double x,double y){return x*y;}},   
+        DIV("/"){double eval(double x,double y){return x/y;}};
+        abstract double eval(double x,double y);
+        
+        private String token;
+        
+        Complute(String token){
+        	this.token = token;
+        }
+        
+        public String getOperator(){
+        	return token;
+        }
     }
+    public enum NumberCompare{   
+        EQUAL("="){boolean eval(Double x,Double y){return x==y;}},   
+        NOTEQUAL("!="){boolean eval(Double x,Double y){return x!=y;}},   
+        LETTER("<"){boolean eval(Double x,Double y){return x<y;}},   
+        LETTERE("<="){boolean eval(Double x,Double y){return x<=y;}},
+        GREATER(">"){boolean eval(Double x,Double y){return x>y;}},
+        GREATERE(">="){boolean eval(Double x,Double y){return x>=y;}}
+        ;
+        abstract boolean eval(Double x,Double y);
+        
+        private String token;
+        
+        NumberCompare(String token){
+        	this.token = token;
+        }
+        
+        public String getOperator(){
+        	return token;
+        }
+    }
+    
+    public enum StringCompare{   
+        EQUAL("="){boolean eval(String x,String y){return x.equals(y);}},   
+        NOTEQUAL("!="){boolean eval(String x,String y){return !x.equals(y);}}
+        ;
+        abstract boolean eval(String x,String y);
+        
+        private String token;
+        
+        StringCompare(String token){
+        	this.token = token;
+        }
+        
+        public String getOperator(){
+        	return token;
+        }
+    }
+    
+    //private Map<String,Object> paramMap = new HashMap<String,Object>();
+    public void execute(RuleContext context) throws ExecuteInvaildException {
+        //Get the tree name.
+        String name = context.getName();
+        if(name.equals("expr")){
+            executeExpr(context);
+        }else if(name.equals("fun")){
+            executeFun(context);
+        }else if(name.equals("array")){
+            executeArray(context);
+        }else if(name.equals("param")){
+            executeParam(context);
+        }else if(name.equals("INT")){
+            executeINT(context);
+        }else if(name.equals("ID")){
+            executeID(context);
+        }else if(name.equals("STRING")){
+            executeString(context);
+        }
+
+    }
+
+    //public void setParam(Map<String,Object> paramMap){
+    //    this.paramMap.putAll(paramMap);
+    //}
+
+
+    private void executeExpr(RuleContext context) throws ExecuteInvaildException{
+        if(context.getChildCount() == 1){
+            context.setValue(this.getChildValue(context,0));
+        }else{
+            //Get all the tree info.
+        	ParserTree[] treeInfoList =  this.getAllChild(context);
+        	
+            if(treeInfoList[0].isToken()){
+                //( expr )
+                context.setValue(this.getChildValue(treeInfoList[1]));
+            }else{
+            	String token = treeInfoList[1].getToken();
+            	if(compluteMap.containsKey(token)){
+            		//expr ('+'|'-') expr
+            		// expr ('*'|'/') expr
+                	context.setValue(
+                			compluteMap.get(token).eval(
+                					(Double)this.getChildValue(treeInfoList[0]),
+                					(Double)this.getChildValue(treeInfoList[2])));
+            	}else if(token.equals("and")){
+            		//expr and expr
+            		context.setValue((Boolean)this.getChildValue(treeInfoList[0]) && 
+                					(Boolean)this.getChildValue(treeInfoList[2]));
+            	}else if(token.equals("or")){
+            		//expr or expr
+            		context.setValue((Boolean)this.getChildValue(treeInfoList[0]) || 
+        					(Boolean)this.getChildValue(treeInfoList[2]));
+            	}else{
+            		//expr ('='|'!='|'>='|'<='|'>'|'<') expr
+            		Object left = this.getChildValue(treeInfoList[0]);
+            		Object right = this.getChildValue(treeInfoList[2]);
+            		if(left instanceof String){
+            			context.setValue(
+                    			stringCompareMap.get(token).eval((String)left,(String)right));
+            		}else{
+            			context.setValue(
+                    			numberCompareMap.get(token).eval((Double)left,(Double)right));
+            		}
+            	}
+            }
+        }
+    }
+
+    private void executeFun(RuleContext context) throws ExecuteInvaildException{
+        //Get the all param value.
+        List<Double> list = (List<Double>) this.getChildValue(context,2);
+
+        int flag = 0;
+        String funName = (String)this.getChildValue(context,0);
+
+        if(funName.equals("max")){
+            flag = 1;
+        }else if(funName.equals("min")){
+            flag = -1;
+        }
+
+        double value = list.get(0);
+        for(int i = 1;i < list.size();i++){
+            double num = list.get(i);
+            if((num - value)*flag>0 ){
+                value = num;
+            }
+        }
+        context.setValue(value);
+    }
+
+    private void executeArray(RuleContext context) throws ExecuteInvaildException{
+        List<Object> list = new ArrayList<Object>();
+        ParserTree[] treeInfoList =  this.getAllChild(context);
+        //param (',' param)*;
+        for(int i =0; i < treeInfoList.length;i++){
+            if(!treeInfoList[i].isToken()){
+              list.add(this.getChildValue(treeInfoList[i]));
+            }
+        }
+        context.setValue(list);
+    }
+
+    private void executeParam(RuleContext context) throws ExecuteInvaildException{
+        if(context.getChildCount()==1){
+            //ID | INT| fun| expr 
+            context.setValue(this.getChildValue(context,0));
+        }else{
+            // ID  '[' INT ']'
+            List<Double> paramList = (List<Double>)this.getChildValue(context,0);
+            context.setValue(paramList.get((Integer) this.getChildValue(context,2)));
+        }
+    }
+
+    private void executeINT(RuleContext context){
+        //Save the value to this tree.
+        context.setValue(Double.valueOf(context.getText()));
+    }
+
+    private void executeID(RuleContext context){
+    	//Save the value to this tree.
+        context.setValue(((Map<String,Object>)this.getParamer())
+        		.get(context.getText()));
+    }
+
+    private void executeString(RuleContext context){
+        //Save the value to this tree.
+        context.setValue(Double.valueOf(context.getText()));
+    }
+}
 
 (3)Finally,you can get the result by executing the program as:<br>
 
