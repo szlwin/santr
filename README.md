@@ -23,31 +23,57 @@ You can learn how to use santr by the example.<br>
 
 (1) First,you should create the grammar tree,and save it as Expr.ls file,the content is:<br>
 
-    grammar Expr;
-    
-    prog : expr;
-    
-    expr : expr ('*'|'/') expr
-        | expr ('+'|'-') expr
-        | ID
-        | INT
-        | '(' expr ')'
-        | fun
-        | STRING
-    ;
-    
-    fun: ID '(' ( array )?  ')' ;
-    
-    array: param (',' param)*;
-    
-    param: ID  ('[' INT ']')?
-           | INT
-           | fun
-           | expr;
-           
-    @STRING : ''' #STRING ''';
-    @ID : ^[A-Za-z]+$;
-    @INT : ^[0-9]*$;
+	grammar Expr
+	;
+	
+	prog : expr;
+	
+	@@KEYWORD :
+		 K_AND     'and'
+		 K_OR      'or'
+		 K_TRUE    'true'
+		 K_FALSE   'false'
+		 K_NULL    'null'
+	;
+	
+	expr : expr ('*'|'/') expr
+	     | expr ('+'|'-') expr
+	     | '!' expr
+	     |  expr '++'
+	     | expr ('='|'!='|'>='|'<='|'>'|'<'|) expr
+	     | expr (K_AND|K_OR) expr
+	     | fun
+	     | ID ('.' ID)* 
+	     | '-' INT
+	     | INT
+	     | '(' expr ')'
+	     | STRING
+	     | DATE
+	     | BOOLEAN
+	     | NULL
+	;
+	
+	BOOLEAN : K_TRUE
+			  | K_FALSE
+	;
+	
+	NULL : K_NULL
+	;
+		  
+	fun: ID '(' ( array )?  ')' ;
+	
+	array: param (',' param)*;
+	
+	param: ID  ('[' INT ']')?
+		   | INT
+	       | expr;
+	  
+	
+	@ID : #STRING ;
+	@INT : #NUMBER ;
+	@STRING : '\'' #STRING '\'';
+	@DATE : '\'' #STRING '\'';
+	WS  : [ \t\r\n];
     
     
 Then write a Test.java to build parser tree by the Expr.ls file.When you executing it, you can see the parser tree.
