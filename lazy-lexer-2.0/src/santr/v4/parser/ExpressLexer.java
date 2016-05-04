@@ -124,7 +124,14 @@ public class ExpressLexer {
 
 				if(tokenChar != null){
 					if(tokenChar.isKeyWord()
-							&& pos+flowCount<indexEnd){
+							&& pos+flowCount<indexEnd){						if((pos !=0 && tokenStreamInfo.getLast()==null)){
+						if((pos !=0 && tokenStreamInfo.getLast()==null)){
+							nextPos = pos+flowCount;
+							flowCount = 0;
+							
+							continue;
+						}
+						
 						TokenString tokenString = tokenStreamInfo.getLast();
 						if((pos-1 != wsIndex && tokenString.getType()!=TOKENTYPE.TOKEN)
 								|| ws[expressCharArr[pos+flowCount]]=='\0'){
