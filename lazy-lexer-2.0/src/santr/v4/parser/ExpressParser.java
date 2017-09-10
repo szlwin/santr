@@ -13,7 +13,7 @@ public class ExpressParser {
 	
 	private ParserTree rTree;
 	
-	private char[] expressCharArr;
+	private String expressCharArr;
 	
 	private Visitor visitor;
 	//private ExpressLexer lexer;
@@ -59,17 +59,17 @@ public class ExpressParser {
 	private void init(String name,String express){
 		this.grammarInfo = LexerUtil.getGrammar(name);
 		
-		expressCharArr = express.toCharArray();
+		expressCharArr = express;
 		//rTree.setStart(0);
 	}
 	
-	private TokenStreamInfo lexer(GrammarInfo grammarInfo,char[] expressCharArr){
+	private TokenStreamInfo lexer(GrammarInfo grammarInfo,String expressCharArr){
 
 		//lexer = new ExpressLexer(grammarInfo.getTokenCharArr(),expressCharArr,grammarInfo.getTerminalDataArr());
 		//return lexer.getTokenStream();
-		ExpressLexer lexer = new ExpressLexer();
+		ExpressLexer lexer = new ExpressLexer(expressCharArr);
 		
-		return lexer.lexer(grammarInfo.getTokenTree(), 0, expressCharArr.length, expressCharArr,
+		return lexer.lexer(grammarInfo.getTokenTree(), 0, expressCharArr.length(),
 				grammarInfo.getTerminalDataArr(),grammarInfo.getWsTokenArray());
 		//return lexer.getTokenStream();
 		//return lexer.lexer(grammarInfo.getTokenCharArr(), 0, expressCharArr.length, expressCharArr,

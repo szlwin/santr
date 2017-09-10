@@ -1,5 +1,6 @@
 package santr.common.util.collections;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +26,7 @@ public class SimpleList<E> implements List<E> {
 	public SimpleList(int size,int autoSize){
 		elementData = (E[])new Object[size];
 		AUTO_SIZE = autoSize;
+		DEFAULT_SIZE = size;
 	}
 	
 	public int size() {
@@ -107,6 +109,30 @@ public class SimpleList<E> implements List<E> {
 	}
 
 	public boolean addAll(Collection<? extends E> c) {
+		
+		if(c.size() == 0){
+			return false;
+		}
+		
+
+		//System.out.println("addAll:"+c.size()+":"+size);
+        Object[] a = c.toArray();
+        int numNew = c.size();
+        
+		E[] eData = (E[])new Object[numNew+size+AUTO_SIZE];
+		if(size !=0){
+			//elementData = Arrays.copyOf(elementData, numNew+size+AUTO_SIZE);
+			System.arraycopy(elementData, 0,eData , 0, size);
+		}
+		
+		
+		System.arraycopy(a, 0, eData, size, numNew);
+		
+		//elementData = Arrays.copyOf(elementData, a.length+elementData.length);
+		
+		elementData= eData;
+		size = size+numNew;
+		ARRAY_SIZE = elementData.length;
 		return false;
 	}
 
@@ -123,7 +149,9 @@ public class SimpleList<E> implements List<E> {
 	}
 
 	public void clear() {
-		
+		size = 0;
+		elementData = (E[])new Object[DEFAULT_SIZE];
+		ARRAY_SIZE = DEFAULT_SIZE;
 	}
 
 	public E get(int index) {
@@ -140,6 +168,24 @@ public class SimpleList<E> implements List<E> {
 	}
 
 	public E remove(int index) {
+		size--;
+		System.out.println("remove:"+index);
+		if(size == 0){
+			clear();
+		}else{
+			E[] newData = (E[])new Object[size+AUTO_SIZE];
+
+			if(index!=0){
+				System.arraycopy(elementData, 0,newData , 0, index);
+			}
+			
+			System.arraycopy(elementData, index+1, newData, 0, size-index);
+			elementData= newData;
+			ARRAY_SIZE = elementData.length;
+		}
+
+		
+		
 		return null;
 	}
 

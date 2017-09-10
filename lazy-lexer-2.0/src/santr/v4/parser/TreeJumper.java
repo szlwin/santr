@@ -325,6 +325,8 @@ public class TreeJumper {
 				lineInfo.setLeafId(-1);
 				lineInfo.setToken(toolUtil.getToken());
 				lineInfo.setId(toolUtil.getTokenString().getId());
+				
+				currentTree.getRuleContext().addUnUseLine(toolUtil.getTokenString().getId(), lineInfo);
 				return lineInfo;
 			}
 			LineInfo errorLineInfo = null;

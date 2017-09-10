@@ -1,8 +1,6 @@
 package santr.v4.parser;
 
-import java.util.List;
-
-import javolution.util.FastTable;
+import santr.common.util.collections.SimpleList;
 
 
 
@@ -12,7 +10,7 @@ public class TokenStream {
 
 	public static final int TYPE_TOKEN = 2;
 
-	private List<TokenString> tokenList = new FastTable<TokenString>();
+	private SimpleList<TokenString> tokenList = new SimpleList<TokenString>(10,6);
 	
 	private int cIndex = 0;
 	

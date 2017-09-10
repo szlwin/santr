@@ -11,10 +11,13 @@ public class ExpressLexer {
 	
 	private TokenStreamInfo tokenStreamInfo = new TokenStreamInfo();
 	
-	public ExpressLexer() {
+	protected final String text;
+	
+	public ExpressLexer(String text) {
+		this.text = text;
 	}
 	
-	public ExpressLexer(TokenChar tokenCharArr[],char[] expressCharArr,TerminalData[] node){
+/*	public ExpressLexer(TokenChar tokenCharArr[],char[] expressCharArr,TerminalData[] node){
 		this.indexEnd = expressCharArr.length;
 		this.node = node;
 		this.expressCharArr = expressCharArr;
@@ -24,7 +27,7 @@ public class ExpressLexer {
 		for(int i = 0;i < tokenCharArr.length;i++){
 			tokenCharArray[i] = tokenCharArr[i].getTokenCharArr();
 		}
-	}
+	}*/
 	
 	public TokenStreamInfo getTokenStream(){
 		return tokenStreamInfo;
@@ -51,7 +54,7 @@ public class ExpressLexer {
 	
 	private int indexEnd;
 	
-	public TokenStreamInfo lexer(TokenTree tokenTree,int indexStart,int indexEnd,char[] expressCharArr,TerminalData[] node,char[] ws){
+	public TokenStreamInfo lexer(TokenTree tokenTree,int indexStart,int indexEnd,TerminalData[] node,char[] ws){
 		//TokenTree tmpTokenTree = null;
 		TokenChar tokenChar = null;
 		TokenStreamInfo tokenStreamInfo = new TokenStreamInfo();
@@ -77,14 +80,14 @@ public class ExpressLexer {
 			//boolean isCan = false;
 			
 			if(isFlag){
-				flowCount = checkEnd(expressCharArr,tmpNode.getEndFlag(),flowCount,pos);
+				flowCount = checkEnd(tmpNode.getEndFlag(),flowCount,pos);
 				TokenString tokenStr = new TokenString();
 				
 				tokenStr.setStart(pos);
 				tokenStr.setEnd(pos+flowCount);
 				tokenStr.setType(TOKENTYPE.STR);
 				tokenStr.setIndex(index);
-				tokenStr.setText(String.valueOf(expressCharArr, pos, flowCount-tmpNode.getEndFlag().length));
+				tokenStr.setText(text.substring(pos, pos+flowCount-tmpNode.getEndFlag().length));
 				tokenStr.setDataType(tmpNode.getType());
 				tokenStreamInfo.add(tokenStr);
 				
@@ -102,7 +105,7 @@ public class ExpressLexer {
 					if(tmpTokenTree.isLeaf()){
 						TokenTree next = null;
 						if(pos+flowCount<indexEnd){
-							next = tmpTokenTree.getNext(expressCharArr[pos+flowCount]);
+							next = tmpTokenTree.getNext(getChar(pos+flowCount));
 						}
 						if(next != null){
 							tmpTokenTree = next;
@@ -117,27 +120,39 @@ public class ExpressLexer {
 					if(!(pos+flowCount<indexEnd)){
 						break;
 					}
-					tmpTokenTree = tmpTokenTree.getNext(expressCharArr[pos+flowCount]);
+					tmpTokenTree = tmpTokenTree.getNext(getChar(pos+flowCount));
 					flowCount++;
 				}
 				
 
-				if(tokenChar != null){
+				if(tokenChar != null
+						){
 					if(tokenChar.isKeyWord()
-							&& pos+flowCount<indexEnd){						if((pos !=0 && tokenStreamInfo.getLast()==null)){
+							&& pos+flowCount<indexEnd
+							){
 						if((pos !=0 && tokenStreamInfo.getLast()==null)){
-							nextPos = pos+flowCount;
-							flowCount = 0;
+								nextPos = pos+flowCount;
+								flowCount = 0;
 							
 							continue;
 						}
-						
 						TokenString tokenString = tokenStreamInfo.getLast();
-						if((pos-1 != wsIndex && tokenString.getType()!=TOKENTYPE.TOKEN)
-								|| ws[expressCharArr[pos+flowCount]]=='\0'){
-							startPos = pos;
+						if((pos-1 != wsIndex 
+								&& tokenString!=null
+								&& tokenString.getType()!=TOKENTYPE.TOKEN)
+								|| (
+										//(pos==0 || ws[expressCharArr[pos-1]]=='\0') ||
+										ws[getChar(pos+flowCount)]=='\0')
+								){
+							
+							//if(tokenString!=null){
+								startPos = pos;
+							//}
+								
 							nextPos = pos+flowCount;
 							flowCount =0;
+								
+							
 							continue;
 						}
 					}
@@ -149,7 +164,7 @@ public class ExpressLexer {
 						tokenStr.setType(TOKENTYPE.STR);
 						
 						tokenStr.setIndex(index);
-						tokenStr.setText(getString(expressCharArr,startPos, pos-startPos));
+						tokenStr.setText(getString(startPos, pos-startPos));
 						setDataType(tokenStr);
 						//tokenStr.setId(-1);
 						tokenStreamInfo.add(tokenStr);
@@ -177,13 +192,13 @@ public class ExpressLexer {
 						
 					}else if(tokenChar.getType() == TOKENTYPE.WS){
 						//pos = pos;
-						pos = pos+skipWS(pos+1,expressCharArr,ws);
+						pos = pos+skipWS(pos+1,ws);
 						wsIndex = pos;
 						//int start = pos++;
 					}
 					if(tokenChar.isKeyWord()){
 						int next = pos+flowCount+1;
-						startPos = nextPos = next+skipWS(next,expressCharArr,ws);
+						startPos = nextPos = next+skipWS(next,ws);
 						//startPos = nextPos = next;
 						wsIndex = nextPos-1;
 					}else{
@@ -205,7 +220,7 @@ public class ExpressLexer {
 							}
 							int sCount = 0;
 							while(sCount < startChar.length
-									&& expressCharArr[pos+sCount] == startChar[sCount]){
+									&& getChar(pos+sCount) == startChar[sCount]){
 								sCount++;
 							}
 							if(sCount == startChar.length){
@@ -257,7 +272,7 @@ public class ExpressLexer {
 			
 			tokenStr.setEnd(indexEnd);
 			tokenStr.setType(TOKENTYPE.STR);
-			tokenStr.setText(getString(expressCharArr,startPos,indexEnd-startPos));
+			tokenStr.setText(getString(startPos,indexEnd-startPos));
 			tokenStr.setIndex(index);
 			setDataType(tokenStr);
 			//tokenStr.setId(-1);
@@ -272,7 +287,7 @@ public class ExpressLexer {
 		return tokenStreamInfo;
 	}
 	
-	public TokenStreamInfo lexer(TokenChar tokenCharArr[],int indexStart,int indexEnd,char[] expressCharArr,TerminalData[] node){
+	/*public TokenStreamInfo lexer(TokenChar tokenCharArr[],int indexStart,int indexEnd,char[] expressCharArr,TerminalData[] node){
 		
 		TokenStreamInfo tokenStreamInfo = new TokenStreamInfo();
 		char tokenCharArray[][] = new char[tokenCharArr.length][];
@@ -460,34 +475,38 @@ public class ExpressLexer {
 		};
 		
 		return tokenStreamInfo;
-	}
+	}*/
 	
 
 	
-	private String getString(char[] expressCharArr,int offset,int count){
+	private String getString(int offset,int count){
 				   
-		return String.valueOf(expressCharArr, offset, count);
+		return text.substring(offset, offset+count);
 	}
 
-	private int checkEnd(char[] expressCharArr,char[] endChar,int flowCount,int pos){
+	private char getChar(int pos){
+		
+		return text.charAt(pos);
+	}
+	private int checkEnd(char[] endChar,int flowCount,int pos){
 		
 		
 
-		while(expressCharArr[pos+flowCount] != endChar[0]){
+		while(getChar(pos+flowCount) != endChar[0]){
 			//System.out.println(expressCharArr[pos+flowCount]);
 			flowCount++;
 		}
 		flowCount++;
 		int eCount = 1;
 		while(eCount < endChar.length
-				&& expressCharArr[pos+flowCount] == endChar[eCount]){
+				&& getChar(pos+flowCount) == endChar[eCount]){
 			eCount++;
 			flowCount++;
 		}
 		
 		if(eCount != endChar.length){
 			
-			return checkEnd(expressCharArr,endChar,flowCount,pos);
+			return checkEnd(endChar,flowCount,pos);
 		}
 		return flowCount;
 	}
@@ -509,10 +528,14 @@ public class ExpressLexer {
 	   return true;
 	}
 	
-	private int skipWS(int start, char[] expressCharArr,char[] ws){
+	private int skipWS(int start,char[] ws){
 		int count = 0;
-		while( start+count < expressCharArr.length
-				&& ws[expressCharArr[start+count]]!='\0'){
+		//System.out.println(getChar(466));
+		while( start+count < text.length()
+				&& start+count < ws.length
+				&& ws[getChar(start+count)]!='\0'){
+			//System.out.println(start+count);
+			//System.out.println((int)getChar(start+count));
 			count++;
 		}
 		return count;

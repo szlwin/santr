@@ -445,7 +445,19 @@ public class GrammerTreeParser {
 										gTreeList.add(gTree3);
 										
 									}else{
-										parseLTree(pTree,subStr,tmpGroup,tmpGroupType);
+										if( (i +1 < charStr.length
+														&&( 
+															charStr[i+1] == '?'
+															|| charStr[i+1] == '*'
+															|| charStr[i+1] == '+'))){
+											parseLTree(pTree,subStr,tmpGroup,tmpGroupType);
+										}else{
+											//stratIndex = index+1;
+											//nextflag = 1;
+											//isEStart = false;
+											continue;
+										}
+										
 									}
 									if(tmpGroupType!=GROUPTYPE.NULL){
 										index = i+1;

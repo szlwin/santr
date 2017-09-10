@@ -9,6 +9,8 @@ import santr.v4.parser.TokenString;
 
 public class TerminalData {
 	
+	private ThreadLocal<Matcher> matcherLocal = new ThreadLocal<Matcher>();
+	
 	private char[] startFlag;
 	
 	private char[] endFlag;
@@ -18,7 +20,7 @@ public class TerminalData {
 	private char[][] ESC;
 
 	private Pattern pattern;
-	private Matcher matcher;
+	//private Matcher matcher;
 	
 	private int type;
 
@@ -47,12 +49,20 @@ public class TerminalData {
 		if(!isMatch){
 			return token.getDataType() == this.type;
 		}else{
+			Matcher matcher = matcherLocal.get();
 			if(matcher == null){
 				matcher = pattern.matcher(token.getText());
-			}else{
-				matcher.reset(token.getText());
+				matcherLocal.set(matcher);
 			}
+			matcher.reset(token.getText());
 			return matcher.matches();
+			//if(matcher == null){
+				//matcher = pattern.matcher(token.getText());
+			//}else{
+			//	matcher.reset(token.getText());
+			//}
+			//return matcher.matches();
+			//return pattern.matcher(token.getText()).matches();
 		}
 
 	}

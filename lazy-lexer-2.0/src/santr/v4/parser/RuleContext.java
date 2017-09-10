@@ -181,7 +181,20 @@ public class RuleContext {
 		}
 		this.addTerminalNode(gTree,tokenStr);
 	}
-	
+	protected void addUnUseLine(int id,LineInfo lineInfo){
+		
+		GTree gTree = this.getLeaf();
+		
+		GTree tmp = gTree;
+		if(lineInfo.getDeep()==1){
+			if(gTree.getType() == GTYPE.LEAF){
+				tmp = gTree.getParent();
+			}
+		}
+
+		tmp.add(id, lineInfo);
+		
+	}
 	protected List<LineInfo> scan(int id,String token){
 		GTree gTree = this.getLeaf();
 		//if(gTree.isExistLine(id)){
